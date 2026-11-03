@@ -1,40 +1,29 @@
-# 🧭 Rota Tech — mentor de carreira com IA
+# 📐 Rota Mat — professor de Matemática com IA
 
 [![CI](https://github.com/IgorSasaki/minicurso-ia-node-ifsp/actions/workflows/ci.yml/badge.svg)](https://github.com/IgorSasaki/minicurso-ia-node-ifsp/actions/workflows/ci.yml)
 ![Node.js 22+](https://img.shields.io/badge/node-%3E%3D22-339933?logo=node.js&logoColor=white)
 ![TypeScript](https://img.shields.io/badge/TypeScript-strict-3178C6?logo=typescript&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Google-Gemini-4285F4?logo=google&logoColor=white)
-![Testes](https://img.shields.io/badge/testes-54%20passando-3DDC97)
-![Licença MIT](https://img.shields.io/badge/licen%C3%A7a-MIT-green)
 
-Projeto do minicurso **"Desenvolvimento de Aplicações Inteligentes com Node.js e IA Generativa"**
-📍 Semana da Informática · IFSP Araraquara
-👨‍💻 Ministrante: **[Igor Sasaki](https://www.linkedin.com/in/igor-sasaki/)** — Engenheiro Full Stack Sênior · ex-Tech Lead · ex-aluno do Técnico em Informática do IFSP Araraquara
-
-[![Abrir no GitHub Codespaces](https://github.com/codespaces/badge.svg)](https://codespaces.new/IgorSasaki/minicurso-ia-node-ifsp)
-
----
-
-## O que é
-
-Uma API em **Node.js + TypeScript** que vai além do "chat com IA": integra o **Google Gemini** a uma aplicação de verdade, com três recursos.
+Uma API em **Node.js + TypeScript** que vai além do "chat com IA": integra o **Google Gemini** a uma aplicação de verdade, com a persona de um **professor de Matemática com doutorado (PhD)** que ensina estudantes do **ensino médio**. São três recursos.
 
 | Recurso | Rota | O que demonstra |
 |---|---|---|
-| 💬 **Mentor de carreira** | `POST /chat` e `POST /chat/stream` | Persona via *system prompt*, histórico de conversa, streaming cancelável |
-| 🗺️ **Plano de carreira em JSON** | `POST /career-plan` | Saída estruturada com JSON Schema + validação com **zod** |
+| 💬 **Professor de Matemática** | `POST /chat` e `POST /chat/stream` | Persona via *system prompt*, histórico de conversa, streaming cancelável |
+| 🧑‍🏫 **Aula em JSON** | `POST /career-plan` | Saída estruturada com JSON Schema + validação com **zod** |
 | 📚 **Perguntas aos documentos (RAG)** | `POST /ask` | Embeddings, busca semântica e respostas **com citação de fonte** |
 
-O RAG consulta documentos que o modelo nunca viu: os PPCs dos cursos de **Análise e Desenvolvimento de Sistemas (ADS)** e **Sistemas para Internet (SPI)** do IFSP Araraquara, um guia de estágio baseado na Lei do Estágio, um guia de primeiro emprego e a trajetória do ministrante.
+O professor não entrega só a resposta: começa pela **intuição**, explica o porquê, mostra um **exemplo resolvido**, avisa dos **erros comuns** e devolve um exercício para o estudante tentar.
 
-![Pergunta sobre ADS e SPI respondida com fontes](docs/img/shot-ask.png)
+O RAG consulta documentos que o modelo nunca viu: **7 arquivos sobre a beleza da Matemática**, de números e geometria até cálculo, infinito, probabilidade, caos e problemas abertos, com seções marcadas por nível (**[básico]**, **[intermediário]** e **[avançado]**).
+
+![Pergunta de Matemática respondida com fontes](docs/img/shot-ask.png)
 
 <details>
 <summary>📸 Mais telas</summary>
 
-| Plano de carreira (JSON → interface) | Chat com streaming |
+| Aula (JSON → interface) | Chat com streaming |
 |---|---|
-| ![Plano](docs/img/shot-career-plan.png) | ![Chat](docs/img/shot-chat.png) |
+| ![Aula](docs/img/shot-career-plan.png) | ![Chat](docs/img/shot-chat.png) |
 
 | Tema claro | Celular |
 |---|---|
@@ -72,6 +61,7 @@ cp .env.example .env
 ### Rode
 ```bash
 pnpm hello    # etapa 1: primeira chamada ao Gemini no terminal
+pnpm ingest   # gera o índice vetorial a partir de data/documents/
 pnpm dev      # API + front-end em http://localhost:3333
 pnpm check    # tipos + lint + testes
 ```
@@ -98,6 +88,8 @@ git checkout main       # versão final
 | `etapa-07` | Front-end e streaming | streaming cancelável, rate limit, UX, XSS | [📄](docs/steps/07-frontend.md) |
 | `main` | Código de produção | testes, lint, CI | [📄](docs/steps/08-production.md) |
 
+> Os nomes da rota `/career-plan` e do arquivo `src/schemas/career-plan.ts` foram mantidos do projeto original por compatibilidade. Aqui, eles geram **uma aula**, e não um plano de carreira.
+
 ---
 
 ## Como funciona
@@ -105,9 +97,9 @@ git checkout main       # versão final
 ```mermaid
 flowchart LR
     subgraph Ingestão["Ingestão (pnpm ingest — roda uma vez)"]
-        D[data/documents/*.md] --> C[chunkMarkdown<br/>1 seção = 1 chunk]
+        D[data/documents/*.md<br/>7 arquivos de Matemática] --> C[chunkMarkdown<br/>1 seção = 1 chunk]
         C --> E1[Gemini<br/>embeddings]
-        E1 --> I[(data/index.json<br/>37 chunks × 768)]
+        E1 --> I[(data/index.json<br/>≈ 66 chunks × 768)]
     end
 
     subgraph Pergunta["POST /ask"]
@@ -124,44 +116,47 @@ flowchart LR
 ### Endpoints
 
 <details>
-<summary><code>POST /chat</code> — conversa com o mentor</summary>
+<summary><code>POST /chat</code> — conversa com o professor</summary>
 
 ```bash
 curl -s -X POST localhost:3333/chat -H 'Content-Type: application/json' -d '{
-  "messages": [{ "role": "user", "text": "Vale mais a pena estágio ou faculdade?" }]
+  "messages": [{ "role": "user", "text": "Por que 0,999... é igual a 1?" }]
 }'
 ```
 ```json
-{ "answer": "Dá para fazer os dois! ..." }
+{ "answer": "Ótima pergunta! Vamos pela intuição: se x = 0,999..., então 10x = 9,999... ..." }
 ```
 `POST /chat/stream` recebe o mesmo corpo e devolve o texto em *streaming* (`text/plain`).
 </details>
 
 <details>
-<summary><code>POST /career-plan</code> — plano de carreira em JSON validado</summary>
+<summary><code>POST /career-plan</code> — aula completa em JSON validado</summary>
 
 ```bash
 curl -s -X POST localhost:3333/career-plan -H 'Content-Type: application/json' -d '{
-  "aboutMe": "Sou o Lucas, 17 anos, 3º ano do integrado. Amo CSS, odeio matemática. Preciso trabalhar logo, só posso estudar à noite."
+  "aboutMe": "Aula de função quadrática para o 1º ano, 50 minutos. A turma tem dificuldade em fatoração e em gráficos. Tenho lousa e projetor."
 }'
 ```
 ```json
 {
-  "profileSummary": "Lucas tem 17 anos...",
-  "recommendedPath": "spi_degree",
-  "rationale": "Como você precisa trabalhar durante o dia, o SPI à noite é ideal...",
-  "interestAreas": ["front-end", "ux-ui"],
-  "alternativePath": { "path": "job_market", "whenItFits": "..." },
-  "studyPath": [{ "order": 1, "topic": "JavaScript", "reason": "...", "howToStart": "..." }],
-  "skillsToDevelop": [{ "skill": "Comunicação", "kind": "soft", "why": "..." }],
-  "milestones": [{ "horizon": "3_months", "goal": "..." }, { "horizon": "6_months", "goal": "..." }, { "horizon": "12_months", "goal": "..." }],
-  "portfolioProject": { "title": "Portfólio Pessoal", "description": "...", "technologies": ["HTML5", "CSS3"] },
-  "resources": [{ "name": "Documentação da MDN", "kind": "docs", "why": "..." }],
-  "exploreNext": ["..."],
-  "reflectionQuestions": ["..."],
-  "nextStepThisWeek": "Criar um perfil no LinkedIn..."
+  "topic": "Função quadrática",
+  "grade": "1º ano do ensino médio",
+  "durationMinutes": 50,
+  "summary": "Aula que parte da trajetória de uma bola para construir a ideia de parábola...",
+  "learningObjectives": ["Reconhecer uma função quadrática pela lei f(x) = ax^2 + bx + c", "..."],
+  "prerequisites": ["Fatoração", "Plano cartesiano"],
+  "hook": "Uma bola é chutada: por que a trajetória é uma curva e não uma reta?",
+  "lessonSteps": [{ "order": 1, "title": "Da bola à parábola", "minutes": 10, "description": "...", "workedExample": "..." }],
+  "classActivity": { "title": "Gráficos no GeoGebra", "format": "pairs", "description": "..." },
+  "exercises": [{ "level": "basic", "statement": "...", "answer": "...", "solution": "..." }],
+  "commonMistakes": [{ "mistake": "Esquecer o sinal de b na fórmula", "howToAvoid": "..." }],
+  "exitQuestions": ["..."],
+  "beautyConnection": "A parábola também aparece nas antenas parabólicas...",
+  "adaptations": { "struggling": "...", "advanced": "..." },
+  "resources": [{ "name": "Khan Academy", "kind": "course", "why": "..." }]
 }
 ```
+> O JSON acima mostra o formato esperado. O contrato real (campos e tipos) é definido em `src/schemas/career-plan.ts`.
 </details>
 
 <details>
@@ -169,16 +164,17 @@ curl -s -X POST localhost:3333/career-plan -H 'Content-Type: application/json' -
 
 ```bash
 curl -s -X POST localhost:3333/ask -H 'Content-Type: application/json' \
-  -d '{ "question": "Qual o turno do curso de ADS?" }'
+  -d '{ "question": "Por que a raiz de 2 é irracional?" }'
 ```
 ```json
 {
-  "answer": "O curso de ADS é oferecido no turno matutino (manhã) [1].",
+  "answer": "Porque, se √2 fosse uma fração a/b irredutível, teríamos a² = 2b², e isso obrigaria a e b a serem pares, o que é uma contradição [1].",
   "sources": [
-    { "ref": 1, "file": "ads-ifsp-araraquara.md", "section": "Dados gerais do curso de ADS", "score": 0.814 }
+    { "ref": 1, "file": "01_numeros_e_suas_curiosidades.md", "section": "Racionais, irracionais e a surpresa de 0,999... [básico]", "score": 0.8 }
   ]
 }
 ```
+Perguntas sem resposta nos documentos (por exemplo, "Qual o preço de um livro de Cálculo?") devolvem `"Não encontrei essa informação nos documentos que tenho."`, sem chamar a LLM.
 </details>
 
 `GET /health` devolve o status e o modelo em uso. Há requisições prontas em [`requests.http`](requests.http) (extensão REST Client do VS Code).
@@ -208,7 +204,7 @@ Toda falha volta como `{ "error": "mensagem para o usuário" }`, com o status HT
 │   ├── ai/
 │   │   ├── llm.ts             # createLlm(): chat, chatJson, chatStream
 │   │   ├── gemini.ts          # cliente real do Gemini (único arquivo com a chave)
-│   │   └── prompts.ts         # persona do mentor e prompts do RAG
+│   │   └── prompts.ts         # persona do professor, instruções da aula e prompts do RAG
 │   ├── rag/
 │   │   ├── embeddings.ts      # textos → vetores
 │   │   ├── similarity.ts      # similaridade de cosseno
@@ -221,7 +217,7 @@ Toda falha volta como `{ "error": "mensagem para o usuário" }`, com o status HT
 │   │   ├── rate-limit.ts      # limite de chamadas de IA
 │   │   └── routes/            # chat.ts, career-plan.ts, ask.ts
 │   └── schemas/
-│       └── career-plan.ts     # o contrato do plano de carreira
+│       └── career-plan.ts     # o contrato da aula (nome mantido do projeto original)
 ├── scripts/                   # programas de linha de comando (fora do servidor)
 │   ├── 01-hello.ts            # etapa 1
 │   ├── 04-similarity.ts       # etapa 4
@@ -235,7 +231,7 @@ Toda falha volta como `{ "error": "mensagem para o usuário" }`, com o status HT
 │   ├── unit/
 │   └── integration/
 ├── data/
-│   ├── documents/             # corpus do RAG (markdown)
+│   ├── documents/             # corpus do RAG: 7 arquivos .md de Matemática
 │   └── index.json             # índice vetorial gerado pelo pnpm ingest
 └── docs/                      # guias das etapas e material do ministrante
 ```
@@ -260,7 +256,7 @@ Toda falha volta como `{ "error": "mensagem para o usuário" }`, com o status HT
 |---|---|---|
 | `GEMINI_API_KEY` | — | **Obrigatória.** Chave do Google AI Studio |
 | `GEMINI_MODEL` | `gemini-3.5-flash-lite` | Modelo de geração (rápido, cota gratuita generosa) |
-| `GEMINI_THINKING_LEVEL` | `MINIMAL` | Quanto o modelo "pensa": `MINIMAL`, `LOW`, `MEDIUM` ou `HIGH` |
+| `GEMINI_THINKING_LEVEL` | `MINIMAL` | Quanto o modelo "pensa": `MINIMAL`, `LOW`, `MEDIUM` ou `HIGH` (para contas e gabaritos, `MEDIUM` ou `HIGH` tende a errar menos) |
 | `GEMINI_EMBEDDING_MODEL` | `gemini-embedding-2` | Modelo de embeddings do RAG |
 | `LLM_TIMEOUT_MS` | `30000` | Tempo máximo esperando a IA |
 | `PORT` | `3333` | Porta da API |
@@ -299,16 +295,17 @@ Toda falha volta como `{ "error": "mensagem para o usuário" }`, com o status HT
 | Servidor não sobe: `Índice não encontrado` | `pnpm ingest` |
 | Servidor não sobe: `O índice foi gerado com ...` | Você trocou o modelo de embedding: `pnpm ingest` |
 | `EADDRINUSE :3333` | Já existe um servidor rodando; feche-o ou mude a `PORT` |
+| A IA responde com contas erradas | Suba o `GEMINI_THINKING_LEVEL` e confira sempre os resultados; modelos de linguagem podem errar em aritmética |
 
 Mais detalhes em [`docs/setup.md`](docs/setup.md).
 
 ## Faça o seu 🛠️
 
-Este projeto foi feito para virar o **seu** projeto de portfólio:
+Este projeto foi feito para virar o **seu** projeto de portfólio. A versão de carreira virou esta versão de Matemática só trocando os documentos, os prompts e o front-end, e você pode fazer o mesmo:
 
 1. Faça um **fork** deste repositório.
-2. Troque os arquivos de `data/documents/` por um tema seu (regras de um jogo, cardápio da cantina, matérias do seu ano...), com seções `##` claras.
-3. Ajuste a persona em `src/ai/prompts.ts`.
+2. Troque os arquivos de `data/documents/` por um tema seu (regras de um jogo, cardápio da cantina, matérias do seu ano, física, história...), com seções `##` claras.
+3. Ajuste a persona em `src/ai/prompts.ts` e os textos em `public/index.html`.
 4. Rode `pnpm ingest` e teste no `/ask`.
 5. Escreva o seu README e publique. Marque [@igor-sasaki](https://www.linkedin.com/in/igor-sasaki/) no LinkedIn!
 
@@ -320,12 +317,17 @@ Este projeto foi feito para virar o **seu** projeto de portfólio:
 
 ## Fontes do corpus
 
-- [PPC do CST em Análise e Desenvolvimento de Sistemas — IFSP Araraquara](https://www.arq.ifsp.edu.br/superiores/tecnologia-em-analise-e-desenvolvimento-de-sistemas) (ingressantes a partir de 2023)
-- [PPC do CST em Sistemas para Internet — IFSP Araraquara](https://www.arq.ifsp.edu.br/superiores/tecnologia-em-sistemas-para-internet) (2023)
-- [Lei nº 11.788/2008 (Lei do Estágio)](https://www.planalto.gov.br/ccivil_03/_ato2007-2010/2008/lei/l11788.htm)
-- Guias de carreira e trajetória: experiência do ministrante (marcados como opinião nos documentos)
+Os 7 documentos de `data/documents/` cobrem, em ordem crescente de dificuldade:
 
-> Os resumos dos PPCs foram preparados para fins didáticos. Para informações oficiais e atualizadas, consulte o site do IFSP Araraquara.
+1. `01_numeros_e_suas_curiosidades.md`: primos, irracionais, π, e, φ, identidade de Euler e Fibonacci.
+2. `02_geometria_simetria_e_formas.md`: Pitágoras, sólidos platônicos, simetria, geometrias não euclidianas e topologia.
+3. `03_algebra_e_estruturas.md`: equações, números complexos, Galois, grupos, aritmética modular e álgebra linear.
+4. `04_calculo_e_analise.md`: limites, derivadas, integrais, séries, Fourier e equações diferenciais.
+5. `05_infinito_logica_e_fundamentos.md`: provas, Cantor, Russell, Gödel e Turing.
+6. `06_probabilidade_estatistica_caos_e_fractais.md`: combinatória, Bayes, caos e fractais.
+7. `07_historia_aplicacoes_e_problemas_abertos.md`: história, matemática no Brasil, aplicações, Problemas do Milênio, glossário e FAQ.
+
+> Os documentos foram preparados para fins didáticos e podem conter imprecisões. Para conteúdo oficial e atualizado, consulte livros didáticos e a Base Nacional Comum Curricular (BNCC). Recordes e problemas em aberto mudam com o tempo.
 
 ## Sobre o autor
 

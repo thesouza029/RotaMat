@@ -1,72 +1,87 @@
 /* =============================================================================
-   Rota Tech — estilos
+   Rota Mat — estilos
    -----------------------------------------------------------------------------
+   Conceito visual: papel quadriculado.
+     - Tema escuro  = "planta técnica": azul-marinho com linhas de grade azuis.
+     - Tema claro   = "caderno": papel branco-azulado com grade azul-clara.
+     - Marca-texto  = amarelo, usado só para citações e avisos.
+   Tipografia: STIX Two Text (serifa criada para textos científicos e fórmulas)
+   nos títulos e nas respostas do professor; Space Grotesk na interface;
+   JetBrains Mono só para números de contagem, nomes de arquivo e JSON.
+
    Organização:
      1. Tokens de design (cores, fontes, raio) — tema escuro, claro e automático
-     2. Base (reset mínimo, foco visível, utilitários)
+     2. Base (reset mínimo, grade do papel, foco visível, utilitários)
      3. Componentes: cabeçalho, abas, cards, botões, sugestões, campos, alertas
-     4. Uma seção por tela: Conversar, Meu plano, Perguntar
+     4. Uma seção por tela: Tirar dúvidas, Minha aula, Perguntar
      5. Animações e responsividade
 
    Por que "tokens"? Todas as cores vêm de variáveis CSS (--bg, --text...).
    Trocar de tema = trocar o valor das variáveis, sem tocar nos componentes.
    ============================================================================= */
 
-/* ---------- 1. Tokens: tema escuro (padrão) ---------- */
+/* ---------- 1. Tokens: tema escuro "planta técnica" (padrão) ---------- */
 :root {
-  --bg: #0b0d10; /* fundo da página */
-  --surface: #14171c; /* fundo de cards */
-  --surface-2: #1a1e24; /* fundo de elementos dentro de cards */
-  --line: #262b33; /* bordas */
-  --text: #eceef1;
-  --muted: #98a1ad; /* texto secundário */
-  --accent: #3ddc97; /* verde: destaque e ações principais */
-  --accent-ink: #0b0d10; /* texto sobre o verde */
-  --accent-soft: rgba(61, 220, 151, 0.12);
-  --warn: #ffb547; /* âmbar: atenção */
-  --warn-soft: rgba(255, 181, 71, 0.12);
-  --danger: #ff6b6b; /* vermelho: erro */
-  --shadow: 0 1px 0 rgba(255, 255, 255, 0.03), 0 8px 24px rgba(0, 0, 0, 0.25);
-  --radius: 14px;
+  --bg: #0b1326; /* fundo da página (azul-marinho) */
+  --surface: #101b33; /* fundo de cards */
+  --surface-2: #16233f; /* fundo de elementos dentro de cards */
+  --line: #243557; /* bordas */
+  --text: #e9eefc;
+  --muted: #96a6c8; /* texto secundário */
+  --accent: #7db4ff; /* azul-grafite: destaque e ações principais */
+  --accent-ink: #071120; /* texto sobre o azul */
+  --accent-soft: rgba(125, 180, 255, 0.14);
+  --warn: #ffd25a; /* marca-texto amarelo: citações e avisos */
+  --warn-soft: rgba(255, 210, 90, 0.12);
+  --danger: #ff7f7f; /* vermelho: erro */
+  --grid: rgba(125, 180, 255, 0.07); /* linhas finas do papel quadriculado */
+  --grid-major: rgba(125, 180, 255, 0.13); /* linhas a cada 5 quadradinhos */
+  --shadow: 0 1px 0 rgba(125, 180, 255, 0.06);
+  --radius: 6px;
   --font: "Space Grotesk", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --serif: "STIX Two Text", "Times New Roman", Georgia, serif;
   --mono: "JetBrains Mono", ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   color-scheme: dark; /* barras de rolagem e campos nativos no tema escuro */
 }
 
-/* Tema claro escolhido pelo botão (o JS grava data-theme="light" no <html>) */
+/* Tema claro "caderno" escolhido pelo botão (o JS grava data-theme="light" no <html>) */
 :root[data-theme="light"] {
-  --bg: #f4f4f1;
+  --bg: #f3f6fc;
   --surface: #ffffff;
-  --surface-2: #f8f8f6;
-  --line: #dcddd8;
-  --text: #0b0d10;
-  --muted: #545c68;
-  --accent: #0b8a5c; /* verde mais escuro: contraste AA sobre fundo claro */
+  --surface-2: #eef2fa;
+  --line: #cfd8ea;
+  --text: #101729;
+  --muted: #4d5a78;
+  --accent: #1d4ed8; /* azul de caneta: contraste AA sobre fundo claro */
   --accent-ink: #ffffff;
-  --accent-soft: rgba(11, 138, 92, 0.1);
-  --warn: #b5740f;
-  --warn-soft: rgba(181, 116, 15, 0.1);
-  --danger: #c62828;
-  --shadow: 0 1px 2px rgba(11, 13, 16, 0.04), 0 8px 24px rgba(11, 13, 16, 0.06);
+  --accent-soft: rgba(29, 78, 216, 0.09);
+  --warn: #8a5a00;
+  --warn-soft: rgba(214, 158, 0, 0.16);
+  --danger: #b91c1c;
+  --grid: rgba(29, 78, 216, 0.08);
+  --grid-major: rgba(29, 78, 216, 0.14);
+  --shadow: 0 1px 0 rgba(16, 23, 41, 0.05);
   color-scheme: light;
 }
 
 /* Sem escolha salva: segue a preferência do sistema operacional */
 @media (prefers-color-scheme: light) {
   :root:not([data-theme]) {
-    --bg: #f4f4f1;
+    --bg: #f3f6fc;
     --surface: #ffffff;
-    --surface-2: #f8f8f6;
-    --line: #dcddd8;
-    --text: #0b0d10;
-    --muted: #545c68;
-    --accent: #0b8a5c;
+    --surface-2: #eef2fa;
+    --line: #cfd8ea;
+    --text: #101729;
+    --muted: #4d5a78;
+    --accent: #1d4ed8;
     --accent-ink: #ffffff;
-    --accent-soft: rgba(11, 138, 92, 0.1);
-    --warn: #b5740f;
-    --warn-soft: rgba(181, 116, 15, 0.1);
-    --danger: #c62828;
-    --shadow: 0 1px 2px rgba(11, 13, 16, 0.04), 0 8px 24px rgba(11, 13, 16, 0.06);
+    --accent-soft: rgba(29, 78, 216, 0.09);
+    --warn: #8a5a00;
+    --warn-soft: rgba(214, 158, 0, 0.16);
+    --danger: #b91c1c;
+    --grid: rgba(29, 78, 216, 0.08);
+    --grid-major: rgba(29, 78, 216, 0.14);
+    --shadow: 0 1px 0 rgba(16, 23, 41, 0.05);
     color-scheme: light;
   }
 }
@@ -84,9 +99,21 @@
 html {
   -webkit-text-size-adjust: 100%;
 }
+/* O papel quadriculado: quadradinhos de 24px, com uma linha mais forte a cada 5 (120px).
+   Só o fundo da página tem grade; os cards são sólidos para o texto ficar limpo. */
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-major) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-major) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size:
+    120px 120px,
+    120px 120px,
+    24px 24px,
+    24px 24px;
   color: var(--text);
   font: 16px / 1.55 var(--font);
 }
@@ -103,7 +130,7 @@ button {
 :focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 8px;
+  border-radius: 4px;
 }
 .icon {
   width: 18px;
@@ -138,6 +165,7 @@ button {
 /* Cabeçalho */
 .topbar {
   border-bottom: 1px solid var(--line);
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
 }
 .topbar .container {
   display: flex;
@@ -157,7 +185,8 @@ button {
   place-items: center;
   width: 40px;
   height: 40px;
-  border-radius: 12px;
+  border: 1px solid var(--accent);
+  border-radius: 6px;
   background: var(--accent-soft);
   color: var(--accent);
 }
@@ -167,8 +196,7 @@ button {
 }
 .brand h1 {
   margin: 0;
-  font-size: 1.15rem;
-  font-weight: 700;
+  font: italic 700 1.4rem / 1.2 var(--serif);
   letter-spacing: -0.01em;
 }
 .brand p {
@@ -189,8 +217,9 @@ button {
   gap: 8px;
   padding: 6px 12px;
   border: 1px solid var(--line);
-  border-radius: 999px;
-  font: 500 0.78rem var(--mono);
+  border-radius: 6px;
+  background: var(--surface);
+  font: 500 0.8rem var(--font);
   color: var(--muted);
   white-space: nowrap;
 }
@@ -217,8 +246,8 @@ button {
   width: 36px;
   height: 36px;
   border: 1px solid var(--line);
-  border-radius: 10px;
-  background: transparent;
+  border-radius: 6px;
+  background: var(--surface);
   color: var(--muted);
 }
 .icon-button:hover {
@@ -233,7 +262,7 @@ button {
   padding: 4px;
   margin: 28px 0 20px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 8px;
   background: var(--surface);
 }
 .tab {
@@ -242,7 +271,7 @@ button {
   gap: 8px;
   padding: 9px 16px;
   border: 0;
-  border-radius: 9px;
+  border-radius: 5px;
   background: transparent;
   color: var(--muted);
   font-weight: 500;
@@ -252,9 +281,9 @@ button {
   color: var(--text);
 }
 .tab[aria-selected="true"] {
-  background: var(--surface-2);
+  background: var(--accent-soft);
   color: var(--text);
-  box-shadow: inset 0 0 0 1px var(--line);
+  box-shadow: inset 0 0 0 1px var(--accent);
 }
 .tab[aria-selected="true"] .icon {
   color: var(--accent);
@@ -269,9 +298,8 @@ button {
 }
 .panel-header h2 {
   margin: 0 0 4px;
-  font-size: 1.6rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
+  font: italic 600 1.9rem / 1.2 var(--serif);
+  letter-spacing: -0.01em;
 }
 .panel-header p {
   margin: 0;
@@ -284,11 +312,9 @@ button {
   border-radius: var(--radius);
   box-shadow: var(--shadow);
 }
-/* Rótulo pequeno em caixa alta, acima de títulos */
+/* Rótulo pequeno acima de títulos: itálico serifado, como uma variável em uma equação */
 .eyebrow {
-  font: 500 0.75rem var(--mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font: italic 500 1rem var(--serif);
   color: var(--muted);
 }
 
@@ -300,7 +326,7 @@ button {
   gap: 8px;
   padding: 10px 18px;
   border: 1px solid transparent;
-  border-radius: 10px;
+  border-radius: 6px;
   font-weight: 600;
 }
 .button-primary {
@@ -330,7 +356,7 @@ button {
   padding: 4px 8px;
   margin: -4px -8px;
   border: 0;
-  border-radius: 8px;
+  border-radius: 4px;
   background: transparent;
   color: var(--muted);
   font-size: 0.8rem;
@@ -348,7 +374,7 @@ button {
 .suggestion {
   padding: 7px 14px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--surface);
   color: var(--text);
   font-size: 0.9rem;
@@ -364,7 +390,7 @@ button {
   width: 100%;
   padding: 12px 14px;
   border: 1px solid var(--line);
-  border-radius: 12px;
+  border-radius: 6px;
   background: var(--surface);
   resize: none;
 }
@@ -385,8 +411,8 @@ button {
   padding: 14px 16px;
   margin-top: 16px;
   border: 1px solid var(--danger);
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--danger) 10%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--danger) 10%, var(--surface));
 }
 /* biome-ignore lint/style/noDescendingSpecificity: ícones em componentes diferentes nunca se sobrepõem */
 .alert .icon {
@@ -405,10 +431,10 @@ button {
 }
 .tag {
   padding: 4px 10px;
-  border-radius: 999px;
+  border-radius: 4px;
   background: var(--accent-soft);
   color: var(--accent);
-  font: 500 0.78rem var(--mono);
+  font: 500 0.8rem var(--font);
 }
 .tag.neutral {
   background: var(--surface-2);
@@ -421,7 +447,7 @@ button {
   position: relative;
   overflow: hidden;
   background: var(--surface-2);
-  border-radius: 8px;
+  border-radius: 6px;
 }
 .skeleton::after {
   content: "";
@@ -437,7 +463,7 @@ button {
   gap: 16px;
 }
 
-/* ---------- 4a. Tela: Conversar ---------- */
+/* ---------- 4a. Tela: Tirar dúvidas ---------- */
 .chat {
   display: flex;
   flex-direction: column;
@@ -454,7 +480,7 @@ button {
 }
 .chat-empty h3 {
   margin: 0;
-  font-size: 1.3rem;
+  font: italic 600 1.55rem / 1.25 var(--serif);
 }
 .chat-empty p {
   margin: 0;
@@ -481,9 +507,7 @@ button {
   align-items: flex-end;
 }
 .message .author {
-  font: 500 0.72rem var(--mono);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+  font: italic 500 0.95rem var(--serif);
   color: var(--muted);
 }
 .message.model .author {
@@ -491,19 +515,22 @@ button {
 }
 .message .text {
   padding: 12px 16px;
-  border-radius: 14px;
-  white-space: pre-wrap; /* respeita as quebras de linha da resposta */
+  border-radius: 8px;
+  white-space: pre-wrap; /* respeita as quebras de linha da resposta (passos de contas) */
   overflow-wrap: anywhere;
 }
 .message.user .text {
   background: var(--accent);
   color: var(--accent-ink);
-  border-bottom-right-radius: 4px;
+  border-bottom-right-radius: 2px;
 }
+/* As respostas do professor usam a serifa científica, com números alinhados à linha de base */
 .message.model .text {
   background: var(--surface-2);
   border: 1px solid var(--line);
-  border-bottom-left-radius: 4px;
+  border-bottom-left-radius: 2px;
+  font: 1.08rem / 1.65 var(--serif);
+  font-variant-numeric: lining-nums;
 }
 .message.model .text:empty {
   display: none;
@@ -524,7 +551,7 @@ button {
   display: inline-flex;
   gap: 4px;
   padding: 14px 16px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: var(--surface-2);
   border: 1px solid var(--line);
 }
@@ -569,7 +596,7 @@ button {
   color: var(--muted);
 }
 
-/* ---------- 4b. Tela: Meu plano ---------- */
+/* ---------- 4b. Tela: Minha aula ---------- */
 .plan-form {
   padding: 20px;
   display: flex;
@@ -599,15 +626,15 @@ button {
 .counter[data-warning] {
   color: var(--warn);
 }
+/* Card principal da aula: uma borda de destaque à esquerda, como a margem de um caderno */
 .highlight {
   padding: 28px;
-  border-color: color-mix(in srgb, var(--accent) 45%, var(--line));
-  background: linear-gradient(180deg, var(--accent-soft), transparent 70%), var(--surface);
+  border-left: 3px solid var(--accent);
 }
 .highlight h3 {
   margin: 6px 0 2px;
-  font-size: 1.9rem;
-  letter-spacing: -0.02em;
+  font: italic 700 2.1rem / 1.2 var(--serif);
+  letter-spacing: -0.01em;
 }
 .highlight .detail {
   margin: 0 0 14px;
@@ -625,7 +652,7 @@ button {
   color: var(--muted);
   font-size: 0.92rem;
 }
-/* Listas simples dos cards do plano (habilidades, recursos, curiosidades, perguntas) */
+/* Listas simples dos cards da aula (habilidades, recursos, curiosidades, perguntas) */
 .plain-list {
   margin: 0;
   padding-left: 18px;
@@ -647,7 +674,7 @@ button {
 }
 .block h4 {
   margin: 8px 0 14px;
-  font-size: 1.05rem;
+  font: 700 1.2rem / 1.3 var(--serif);
 }
 .timeline {
   list-style: none;
@@ -661,14 +688,16 @@ button {
   grid-template-columns: 32px 1fr;
   gap: 12px;
 }
+/* Cada passo é uma "casa" da grade, com o número em itálico como uma variável */
 .timeline .step-number {
   display: grid;
   place-items: center;
   width: 32px;
   height: 32px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  font: 500 0.85rem var(--mono);
+  border-radius: 4px;
+  border: 1px solid var(--accent);
+  background: var(--accent-soft);
+  font: italic 600 1.05rem var(--serif);
   color: var(--accent);
 }
 .timeline strong {
@@ -682,6 +711,7 @@ button {
   display: block;
   margin-top: 4px;
 }
+/* Próximo passo: o único elemento em marca-texto amarelo da tela */
 .next-step {
   display: flex;
   gap: 14px;
@@ -689,7 +719,7 @@ button {
   padding: 18px 20px;
   border-left: 3px solid var(--warn);
   background: var(--warn-soft);
-  border-radius: 0 12px 12px 0;
+  border-radius: 0 6px 6px 0;
 }
 /* biome-ignore lint/style/noDescendingSpecificity: ícones em componentes diferentes nunca se sobrepõem */
 .next-step .icon {
@@ -736,9 +766,10 @@ button {
 .answer p {
   margin: 8px 0 0;
   white-space: pre-wrap;
-  font-size: 1.05rem;
+  font: 1.15rem / 1.65 var(--serif);
+  font-variant-numeric: lining-nums;
 }
-/* Citação [n] clicável dentro da resposta */
+/* Citação [n] dentro da resposta: marca-texto amarelo, como uma nota de rodapé grifada */
 .citation {
   display: inline-grid;
   place-items: center;
@@ -747,11 +778,11 @@ button {
   padding: 0 5px;
   margin: 0 1px;
   vertical-align: 2px;
-  border: 1px solid var(--accent);
-  border-radius: 6px;
-  background: var(--accent-soft);
-  color: var(--accent);
-  font: 600 0.7rem var(--mono);
+  border: 1px solid var(--warn);
+  border-radius: 4px;
+  background: var(--warn-soft);
+  color: var(--warn);
+  font: 700 0.72rem var(--font);
 }
 .sources {
   padding: 8px 0;
@@ -777,18 +808,19 @@ button {
   border-top: 1px solid var(--line);
   transition: background 0.3s;
 }
+/* A fonte destacada usa o mesmo amarelo da citação que o leitor clicou */
 .source.highlighted {
-  background: var(--accent-soft);
+  background: var(--warn-soft);
 }
 .source .ref {
   display: grid;
   place-items: center;
   width: 26px;
   height: 26px;
-  border-radius: 8px;
+  border-radius: 4px;
   background: var(--surface-2);
   border: 1px solid var(--line);
-  font: 500 0.75rem var(--mono);
+  font: italic 600 0.9rem var(--serif);
 }
 .source .file {
   font: 500 0.85rem var(--mono);
@@ -807,7 +839,7 @@ button {
 .bar {
   width: 100%;
   height: 6px;
-  border-radius: 3px;
+  border-radius: 2px;
   background: var(--surface-2);
   overflow: hidden;
 }
@@ -815,7 +847,7 @@ button {
   display: block;
   height: 100%;
   background: var(--accent);
-  border-radius: 3px;
+  border-radius: 2px;
 }
 /* "Não encontrei": resultado válido, não um erro — por isso a borda tracejada e neutra */
 .not-found {
@@ -834,7 +866,7 @@ button {
 }
 .not-found h3 {
   margin: 0 0 4px;
-  font-size: 1.05rem;
+  font: 700 1.2rem / 1.3 var(--serif);
 }
 .not-found p {
   margin: 0;

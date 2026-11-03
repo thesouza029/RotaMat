@@ -1,23 +1,27 @@
 <!doctype html>
 <!--
-  Rota Tech — front-end de demonstração.
+  Rota Mat — front-end de demonstração (professor de Matemática com IA).
 
   HTML, CSS e JavaScript puros: sem framework e sem etapa de build.
     - Estrutura (este arquivo)  → o que aparece na tela
     - Estilo  (css/app.css)     → a aparência
     - Comportamento (js/*.js)   → módulos ES nativos do navegador (type="module")
+
+  Atenção: os ids (status, messages, chat-input, plan-form, ask-form etc.) e os
+  atributos data-* são usados pelo JavaScript. Mude os TEXTOS à vontade, mas
+  mantenha os ids e os data-*.
 -->
 <html lang="pt-BR">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Rota Tech</title>
-  <meta name="description" content="Mentor de carreira com IA — projeto do minicurso de Node.js e IA generativa do IFSP Araraquara" />
+  <title>Rota Mat</title>
+  <meta name="description" content="Professor de Matemática com IA para o ensino médio — projeto do minicurso de Node.js e IA generativa do IFSP Araraquara" />
 
-  <!-- Fontes do Google: Space Grotesk (interface) e JetBrains Mono (código e rótulos) -->
+  <!-- Fontes do Google: STIX Two Text (títulos e respostas, serifa científica), Space Grotesk (interface) e JetBrains Mono (contadores, arquivos e JSON) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&family=STIX+Two+Text:ital,wght@0,500;0,600;0,700;1,500;1,600;1,700&display=swap" />
   <link rel="stylesheet" href="css/app.css" />
 
   <script>
@@ -34,6 +38,10 @@
 <body>
   <!-- Ícones SVG reutilizáveis. Usamos SVG em vez de emojis: renderizam igual em qualquer sistema. -->
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <!-- Novos ícones da temática de Matemática -->
+    <symbol id="i-pi" viewBox="0 0 24 24"><path d="M4 7h16" /><path d="M9 7v10" /><path d="M15 7v8.5c0 1.1.9 1.5 2.5 1.5" /></symbol>
+    <symbol id="i-board" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="12" rx="2" /><path d="M8 20l4-4 4 4" /><path d="M7 9h4M7 12h7" /></symbol>
+    <!-- Ícones originais (mantidos: o JavaScript pode usá-los) -->
     <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5 5-2z" /></symbol>
     <symbol id="i-chat" viewBox="0 0 24 24"><path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12z" /></symbol>
     <symbol id="i-map" viewBox="0 0 24 24"><path d="M9 4 3 6v14l6-2 6 2 6-2V4l-6 2-6-2z" /><path d="M9 4v14M15 6v14" /></symbol>
@@ -52,10 +60,10 @@
   <header class="topbar">
     <div class="container">
       <div class="brand">
-        <div class="brand-logo"><svg class="icon"><use href="#i-compass" /></svg></div>
+        <div class="brand-logo"><svg class="icon"><use href="#i-pi" /></svg></div>
         <div>
-          <h1>Rota Tech</h1>
-          <p>Mentor de carreira com IA · IFSP Araraquara</p>
+          <h1>Rota Mat</h1>
+          <p>Professor de Matemática com IA · Ensino médio</p>
         </div>
       </div>
       <div class="topbar-actions">
@@ -72,28 +80,28 @@
     <!-- ===================== Abas (padrão ARIA "tablist") ===================== -->
     <nav class="tabs" role="tablist" aria-label="Funcionalidades">
       <button class="tab" role="tab" id="tab-chat" aria-controls="chat" aria-selected="true" data-tab="chat">
-        <svg class="icon"><use href="#i-chat" /></svg>Conversar
+        <svg class="icon"><use href="#i-chat" /></svg>Tirar dúvidas
       </button>
       <button class="tab" role="tab" id="tab-career-plan" aria-controls="career-plan" aria-selected="false" tabindex="-1" data-tab="career-plan">
-        <svg class="icon"><use href="#i-map" /></svg>Meu plano
+        <svg class="icon"><use href="#i-board" /></svg>Minha aula
       </button>
       <button class="tab" role="tab" id="tab-ask" aria-controls="ask" aria-selected="false" tabindex="-1" data-tab="ask">
         <svg class="icon"><use href="#i-book" /></svg><span>Perguntar<span class="label-long"> aos documentos</span></span>
       </button>
     </nav>
 
-    <!-- ===================== Conversar (etapas 2 e 7: POST /chat/stream) ===================== -->
+    <!-- ===================== Tirar dúvidas (etapas 2 e 7: POST /chat/stream) ===================== -->
     <section class="panel" id="chat" role="tabpanel" aria-labelledby="tab-chat">
       <div class="card chat">
         <!-- Estado vazio: ninguém sabe o que perguntar para uma tela em branco -->
         <div class="chat-empty" id="chat-empty">
-          <span class="eyebrow">Mentor de carreira</span>
-          <h3>Sobre o que você quer conversar?</h3>
-          <p>Estágio, faculdade, portfólio, primeiro emprego. O Rota Tech responde com dicas práticas e diz quando não sabe.</p>
+          <span class="eyebrow">Professor de Matemática</span>
+          <h3>Qual dúvida de Matemática vamos desvendar?</h3>
+          <p>Funções, geometria, probabilidade, trigonometria, porcentagem. O professor explica com intuição, mostra exemplos resolvidos e diz quando não sabe.</p>
           <div class="suggestions" data-target="chat-input">
-            <button class="suggestion" type="button">Vale mais a pena estágio ou faculdade?</button>
-            <button class="suggestion" type="button">Como montar um portfólio sem experiência?</button>
-            <button class="suggestion" type="button">Por onde começo a estudar back-end?</button>
+            <button class="suggestion" type="button">Por que 0,999... é igual a 1?</button>
+            <button class="suggestion" type="button">Como surge a fórmula de Bhaskara?</button>
+            <button class="suggestion" type="button">Para que serve a trigonometria na vida real?</button>
           </div>
         </div>
         <!-- aria-live: leitores de tela leem as novas mensagens conforme chegam -->
@@ -101,7 +109,7 @@
         <form class="composer" id="chat-form">
           <div class="composer-row">
             <label class="sr-only" for="chat-input">Mensagem</label>
-            <textarea class="field" id="chat-input" rows="1" placeholder="Escreva sua pergunta…" autocomplete="off"></textarea>
+            <textarea class="field" id="chat-input" rows="1" placeholder="Escreva sua dúvida de Matemática…" autocomplete="off"></textarea>
             <button class="button button-primary send-button" type="submit" aria-label="Enviar">
               <svg class="icon"><use href="#i-send" /></svg>
             </button>
@@ -115,24 +123,25 @@
       </div>
     </section>
 
-    <!-- ===================== Meu plano (etapa 3: POST /career-plan) ===================== -->
+    <!-- ===================== Minha aula (etapa 3: POST /career-plan) ===================== -->
     <section class="panel" id="career-plan" role="tabpanel" aria-labelledby="tab-career-plan" hidden>
       <div class="panel-header">
-        <h2>Seu plano de carreira</h2>
-        <p>Descreva você em texto livre. A IA devolve um JSON validado com zod, e esta tela é montada a partir desses dados.</p>
+        <h2>Sua aula de Matemática</h2>
+        <p>Descreva o tema, o ano e a turma em texto livre. A IA devolve um JSON validado com zod, e esta tela é montada a partir desses dados.</p>
       </div>
       <form class="card plan-form" id="plan-form">
         <div class="plan-form-header">
-          <label for="plan-input">Sobre você</label>
+          <label for="plan-input">Sobre a aula</label>
+          <!-- Os valores de data-example (lucas e bia) são chaves usadas pelo JavaScript; troque os textos de exemplo lá. -->
           <div class="suggestions" id="plan-examples">
-            <button class="suggestion" type="button" data-example="lucas">Exemplo: Lucas</button>
-            <button class="suggestion" type="button" data-example="bia">Exemplo: Bia</button>
+            <button class="suggestion" type="button" data-example="lucas">Exemplo: Função quadrática</button>
+            <button class="suggestion" type="button" data-example="bia">Exemplo: Probabilidade</button>
           </div>
         </div>
-        <textarea class="field" id="plan-input" rows="4" maxlength="1500" placeholder="Idade, ano do curso, do que você gosta, se precisa trabalhar, em que turno pode estudar…"></textarea>
+        <textarea class="field" id="plan-input" rows="4" maxlength="1500" placeholder="Tema, ano da turma, duração da aula, nível da turma, dificuldades que já percebeu, recursos disponíveis (lousa, projetor, laboratório)…"></textarea>
         <div class="plan-form-footer">
           <span class="counter" id="plan-counter">0 / 1500 · mínimo 20</span>
-          <button class="button button-primary" type="submit" id="plan-submit" disabled>Gerar meu plano</button>
+          <button class="button button-primary" type="submit" id="plan-submit" disabled>Gerar minha aula</button>
         </div>
       </form>
       <div id="plan-result" aria-live="polite"></div>
@@ -142,18 +151,18 @@
     <section class="panel" id="ask" role="tabpanel" aria-labelledby="tab-ask" hidden>
       <div class="panel-header">
         <h2>Perguntar aos documentos</h2>
-        <p>Respostas baseadas apenas nos PPCs de ADS e SPI do IFSP Araraquara, no guia de estágio e nos guias de carreira, sempre com a fonte.</p>
+        <p>Respostas baseadas apenas nos materiais de Matemática (números, geometria, álgebra, cálculo, lógica, probabilidade, história e aplicações), sempre com a fonte.</p>
       </div>
       <form class="ask-form" id="ask-form">
         <label class="sr-only" for="ask-input">Pergunta</label>
-        <input class="field" id="ask-input" placeholder="Ex.: Qual o turno do curso de ADS?" autocomplete="off" />
+        <input class="field" id="ask-input" placeholder="Ex.: Por que a raiz de 2 é irracional?" autocomplete="off" />
         <button class="button button-primary" type="submit">Perguntar</button>
       </form>
       <div class="suggestions" data-target="ask-input" style="margin-top: 12px">
-        <button class="suggestion" type="button">ADS ou SPI: qual é melhor pra quem precisa trabalhar de dia?</button>
-        <button class="suggestion" type="button">Qual o turno do curso de ADS?</button>
-        <button class="suggestion" type="button">Como o Igor começou na carreira?</button>
-        <button class="suggestion" type="button">Qual o salário de um dev júnior?</button>
+        <button class="suggestion" type="button">Por que a raiz de 2 é irracional?</button>
+        <button class="suggestion" type="button">Como funciona o problema de Monty Hall?</button>
+        <button class="suggestion" type="button">Quem é Artur Ávila?</button>
+        <button class="suggestion" type="button">Qual o preço de um livro de Cálculo?</button>
       </div>
       <div id="ask-result" aria-live="polite"></div>
     </section>
